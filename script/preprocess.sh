@@ -40,7 +40,9 @@ done
  
 # prepare bpe data for bpe_level  
 # learn BPE model on train (concatenate both languages)
+# measure time
 
+SECONDS=0
 subword-nmt learn-joint-bpe-and-vocab -i $data/train.tokenized.$src $data/train.tokenized.$trg \
 	--write-vocabulary $base/shared_models/vocab.$src $base/shared_models/vocab.$trg \
 	-s $bpe_num_operations -o $base/shared_models/$src$trg.bpe
@@ -51,8 +53,10 @@ for corpus in train dev test; do
 	subword-nmt apply-bpe -c $base/shared_models/$src$trg.bpe --vocabulary $base/shared_models/vocab.$src --vocabulary-threshold $bpe_vocab_threshold < $data/$corpus.truecased.$src > $data/$corpus.bpe.$src
 	subword-nmt apply-bpe -c $base/shared_models/$src$trg.bpe --vocabulary $base/shared_models/vocab.$trg --vocabulary-threshold $bpe_vocab_threshold < $data/$corpus.truecased.$trg > $data/$corpus.bpe.$trg
 done
+
 # sanity checks   
 
 echo "At this point, please check that 1) file sizes are as expected, 2) languages are correct and 3) material is still parallel" 
+
 echo "time taken:" 
 echo "$SECONDS seconds"  
