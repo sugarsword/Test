@@ -1,13 +1,24 @@
 #! /bin/bash
+
 scripts=`dirname "$0"`
 base=$scripts/..
-tools=$base/tools  
-data=$base/dataMOSES=$tools/moses-scripts/scripts
-train_size=100000  
-mkdir -p $base/shared_models  
-bpe_num_operations=2000bpe_vocab_threshold=10
-src=en 
-trg=de
+
+data=$base/data
+tools=$base/tools
+
+mkdir -p $base/shared_models
+
+src=de
+trg=en
+
+# cloned from https://github.com/bricksdont/moses-scripts
+MOSES=$tools/moses-scripts/scripts
+
+train_size=100000
+bpe_num_operations=2000
+bpe_vocab_threshold=10
+
+#################################################################
 # if this leads to out-of-memory on your machine, use the argument --memory-efficient 
 python $scripts/subsample.py
  --src-input $data/train.$src-$trg.$src \
@@ -16,16 +27,20 @@ python $scripts/subsample.py
  --trg-output $data/sub.train.$src-$trg.$trg \
  --size $train_size   
  
- #for i in $data/sub.*; do mv "$i" "${i/sub/}"; done  
- for corpus in train test dev; do   
-	$MOSES/tokenizer/tokenizer.perl -l $src < $data/$corpus.$src-$trg.$src > $data/$corpus.tokenized.$src $MOSES/tokenizer/tokenizer.perl -l $trg < $data/$corpus.$src-$trg.$trg > $data/$corpus.tokenized.$trg  
- done   
+
+$MOSES/tokenizer/tokenizer.perl -l $src < $data/sub.train.$src-$trg.$src > $data/train.tokenized.$src 
+$MOSES/tokenizer/tokenizer.perl -l $trg < $data/sub.train.$src-$trg.$trg > $data/train.tokenized.$trg  
+
+for corpus in test dev; do
+	$MOSES/tokenizer/tokenizer.perl -l $src < $data/$corpus.$src-$trg.$src > $data/$corpus.tokenized.$src 
+	$MOSES/tokenizer/tokenizer.perl -l $trg < $data/$corpus.$src-$trg.$trg > $data/$corpus.tokenized.$trg  
+done   
  
- wc -l $data/*tokenized.*  
- # prepare bpe data for bpe_level  
+ wc -l $data/*tokenized.*
  
- # learn BPE model on train (concatenate both languages)
- 
+# prepare bpe data for bpe_level  
+# learn BPE model on train (concatenate both languages)
+
 subword-nmt learn-joint-bpe-and-vocab -i $data/train.tokenized.$src $data/train.tokenized.$trg --write-vocabulary $base/shared_models/vocab.$src $base/shared_models/vocab.$trg -s $bpe_num_operations -o $base/shared_models/$src$trg.bpe 
  
 # apply BPE model to train, test and dev   
