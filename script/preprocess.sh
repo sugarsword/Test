@@ -58,5 +58,5 @@ done
 
 echo "At this point, please check that 1) file sizes are as expected, 2) languages are correct and 3) material is still parallel" 
 
-echo "time taken:" 
-echo "$SECONDS seconds"  
+echo "time taken:"
+echo "$SECONDS seconds"
