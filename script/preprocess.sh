@@ -41,7 +41,9 @@ done
 # prepare bpe data for bpe_level  
 # learn BPE model on train (concatenate both languages)
 
-subword-nmt learn-joint-bpe-and-vocab -i $data/train.tokenized.$src $data/train.tokenized.$trg --write-vocabulary $base/shared_models/vocab.$src $base/shared_models/vocab.$trg -s $bpe_num_operations -o $base/shared_models/$src$trg.bpe 
+subword-nmt learn-joint-bpe-and-vocab -i $data/train.tokenized.$src $data/train.tokenized.$trg \
+	--write-vocabulary $base/shared_models/vocab.$src $base/shared_models/vocab.$trg \
+	-s $bpe_num_operations -o $base/shared_models/$src$trg.bpe 
  
 # apply BPE model to train, test and dev   
 
